@@ -20,24 +20,37 @@ contract KittyInterface {                                                       
 
 contract ZombieFeeding is ZombieFactory {                                                       // ZombieFeeding hérite de toutes les méthodes de ZombieFactory
 
-    address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;                             // Adresse du contrat CryptoKitties
-    KittyInterface kittyContract = KittyInterface(ckAddress);                                   // Création d'une KittyInterface initialisez à l'adresse du contrat de ck (CryptoKitties)
+  KittyInterface kittyContract;
+
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
+
+  function _triggerCooldown(Zombie storage _zombie) internal {                                // Fonction qui active un compte a rebour 
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {                    // Fonction qui vérifie si un zombie peut manger ou non
+      return (_zombie.readyTime <= now);
+  }
 
 
-    function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) public {
-        require(msg.sender == zombieToOwner[_zombieId]);                                        // Vérifier si nous sommes le propriétaire du Zombie
-        Zombie storage myZombie = zombies[_zombieId];                                           // Permet de déclarer le zombie localement pour le stockage
-        _targetDna = _targetDna % dnaModulus;                                                   // Vérifier la longeur de 16 chiffres
-        uint newDna = (myZombie.dna + _targetDna) / 2;                                          // Nouveau zombie sera égal à la moyenne de l'ADN de myZombie et de _targetDna
-        if (keccak256(_species) == keccak256("kitty")) {                                        // compare le hachage keccak256 de _species et la chaîne de caractère "kitty"
-        newDna = newDna - newDna % 100 + 99;                                                    // Remplace les 2 derniers chiffres de l'ADN par 99
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal {
+      require(msg.sender == zombieToOwner[_zombieId]);                                        // Vérifier si nous sommes le propriétaire du Zombie
+      Zombie storage myZombie = zombies[_zombieId];                                           // Permet de déclarer le zombie localement pour le stockage
+      require(_isReady(myZombie));                                                            // Vérifier si le zombie est prêt à manger ou non
+      _targetDna = _targetDna % dnaModulus;                                                   // Vérifier la longeur de 16 chiffres
+      uint newDna = (myZombie.dna + _targetDna) / 2;                                          // Nouveau zombie sera égal à la moyenne de l'ADN de myZombie et de _targetDna
+      if (keccak256(_species) == keccak256("kitty")) {                                        // compare le hachage keccak256 de _species et la chaîne de caractère "kitty"
+      newDna = newDna - newDna % 100 + 99;                                                    // Remplace les 2 derniers chiffres de l'ADN par 99
     }
-        _createZombie("NoName", newDna);                                                        // Création du nouveau zombie
+      _createZombie("NoName", newDna);                                                        // Création du nouveau zombie
+      _triggerCooldown(myZombie);                                                             // Déclenche le compte à rebour quand l'action de manger est lancer
     }
 
-    function feedOnKitty(uint _zombieId, uint _kittyId) public {                                // Fonction pour récupérer les gènes des chattons
-        uint kittyDna;                                                                          // "kittyDna" permet de stocker les valeurs des "genes" du "getKitty"
-        (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);                                 // "getKitty" retourne une tonne de variables (10), nous voulons que la "genes" d'où les virgules 
-        feedAndMultiply(_zombieId, kittyDna, "kitty");
-    }
+  function feedOnKitty(uint _zombieId, uint _kittyId) public {                                // Fonction pour récupérer les gènes des chattons
+      uint kittyDna;                                                                          // "kittyDna" permet de stocker les valeurs des "genes" du "getKitty"
+      (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);                                 // "getKitty" retourne une tonne de variables (10), nous voulons que la "genes" d'où les virgules 
+      feedAndMultiply(_zombieId, kittyDna, "kitty");
+  }
 }
