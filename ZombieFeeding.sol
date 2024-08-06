@@ -3,7 +3,7 @@ pragma solidity 0.4.19;
 import "./zombiefactory.sol";
 
 
-contract KittyInterface {                                                                       // Lecture du code source des CryptoKitties qui retourne toutes les données des chatons pourcréer de nouveaux zombies
+contract KittyInterface {                                                                  // Lecture du code source des CryptoKitties qui retourne toutes les données des chatons pourcréer de nouveaux zombies
   function getKitty(uint256 _id) external view returns (
     bool isGestating,
     bool isReady,
@@ -18,9 +18,14 @@ contract KittyInterface {                                                       
   );
 }
 
-contract ZombieFeeding is ZombieFactory {                                                       // ZombieFeeding hérite de toutes les méthodes de ZombieFactory
+contract ZombieFeeding is ZombieFactory {                                                   // ZombieFeeding hérite de toutes les méthodes de ZombieFactory
 
   KittyInterface kittyContract;
+
+  modifier ownerOf(uint _zombieId) {                                                        // Vérifier que le zombie attaquant appartient bien à l'utilisateur
+    require(msg.sender == zombieToOwner[_zombieId]);
+    _;
+  }
 
   function setKittyContractAddress(address _address) external onlyOwner {
     kittyContract = KittyInterface(_address);
@@ -35,8 +40,7 @@ contract ZombieFeeding is ZombieFactory {                                       
   }
 
 
-  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal {
-      require(msg.sender == zombieToOwner[_zombieId]);                                        // Vérifier si nous sommes le propriétaire du Zombie
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal ownerOf(_zombieId) {
       Zombie storage myZombie = zombies[_zombieId];                                           // Permet de déclarer le zombie localement pour le stockage
       require(_isReady(myZombie));                                                            // Vérifier si le zombie est prêt à manger ou non
       _targetDna = _targetDna % dnaModulus;                                                   // Vérifier la longeur de 16 chiffres

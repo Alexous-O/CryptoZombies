@@ -19,6 +19,8 @@ contract ZombieFactory is Ownable {                                             
         uint dna;
         uint32 level;
         uint32 readyTime;
+        uint16 winCount;
+        uint16 lossCount;
     }
 
     Zombie[] public zombies;                                                                // creation du tableaux qui permetttra de stocker tous les zombies
@@ -28,7 +30,7 @@ contract ZombieFactory is Ownable {                                             
 
 
     function _createZombie(string _name, uint _dna) internal {                              // Fonction pour créer des zombies
-        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime))) - 1;     // Crreation d'un zombie avec les arguments de la fonction + ajout dans le tableau "zombies"                            
+        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;     // Crreation d'un zombie avec les arguments de la fonction + ajout dans le tableau "zombies", avec 0 victoire et 0 défaites                            
         zombieToOwner[id] = msg.sender;                                                     // Mettons à jour notre mappage
         ownerZombieCount[msg.sender]++;
         
