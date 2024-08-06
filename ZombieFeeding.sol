@@ -22,7 +22,7 @@ contract ZombieFeeding is ZombieFactory {                                       
 
   KittyInterface kittyContract;
 
-  modifier ownerOf(uint _zombieId) {                                                        // Vérifier que le zombie attaquant appartient bien à l'utilisateur
+  modifier onlyOwnerOf(uint _zombieId) {                                                      // Vérifier que le zombie attaquant appartient bien à l'utilisateur
     require(msg.sender == zombieToOwner[_zombieId]);
     _;
   }
@@ -40,7 +40,7 @@ contract ZombieFeeding is ZombieFactory {                                       
   }
 
 
-  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal ownerOf(_zombieId) {
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal onlyOwnerOf(_zombieId) {
       Zombie storage myZombie = zombies[_zombieId];                                           // Permet de déclarer le zombie localement pour le stockage
       require(_isReady(myZombie));                                                            // Vérifier si le zombie est prêt à manger ou non
       _targetDna = _targetDna % dnaModulus;                                                   // Vérifier la longeur de 16 chiffres
