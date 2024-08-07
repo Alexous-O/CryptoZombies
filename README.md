@@ -11,7 +11,7 @@ This project was a discovery to understand programming in this environment
 
 To learn, I followed the [CryptoZombies](https://cryptozombies.io) courses where they explained programming, the environment...
 
-The programming was done in *Solidity*, JavaScript and Web3.js
+The programming was done in Solidity<sup>1</sup>, JavaScript and Web3.js
 
 
 
@@ -23,7 +23,7 @@ There were different parts, with lessons and practice, error correction :
 
 The project is really backend, with the creation of smart contracts, the JavaScript links the interface to the contracts, it was a bit complicated at first, but the site explains it quite well so you can get the hang of it quickly.
 
-*Solidity is an object-oriented programming language dedicated to writing smart contracts. It is used to implement smart contracts on various blockchains, including Ethereum.*
+<sup>1</sup>Solidity is an object-oriented programming language dedicated to writing smart contracts. It is used to implement smart contracts on various blockchains, including Ethereum.*
 
 ## Author 👨‍💻
 The project was created by myself.
